@@ -82,7 +82,9 @@ export default function App() {
                   </div>
                   <figcaption>
                     <span className="hand">{p.title}</span>
-                    <span className="label">{p.place} · {shortYear(p.year)}</span>
+                    {(p.place || p.year) && (
+                      <span className="label">{[p.place, p.year && shortYear(p.year)].filter(Boolean).join(' · ')}</span>
+                    )}
                   </figcaption>
                 </figure>
               </li>
@@ -98,7 +100,7 @@ export default function App() {
             <div className="about-print reveal">
               <span className="tape tape-center" aria-hidden="true" />
               <Frame photo={site.portrait} index={1} />
-              <p className="hand about-print-caption" aria-hidden="true">me, somewhere in the Rhodopes</p>
+              <p className="hand about-print-caption" aria-hidden="true">me, by the sea</p>
             </div>
             <div className="about-body">
               {site.about.map((t, i) => (

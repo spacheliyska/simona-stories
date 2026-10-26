@@ -64,7 +64,7 @@ export default function Lightbox({ photos, index, onChange, onClose }) {
           </button>
           <p className="lightbox-caption" aria-live="polite">
             <span className="label">{String(index + 1).padStart(2, '0')} / {String(photos.length).padStart(2, '0')}</span>{' '}
-            {photo.title} — {photo.place}, {photo.year}
+            {[photo.title, [photo.place, photo.year].filter(Boolean).join(', ')].filter(Boolean).join(' — ')}
           </p>
           <button type="button" className="pill" onClick={next}>
             Next <span aria-hidden="true">→</span>

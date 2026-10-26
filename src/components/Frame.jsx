@@ -28,6 +28,7 @@ export default function Frame({ photo, index, onClick, eager = false }) {
       ref={img}
       src={withBase(photo.src)}
       alt={description}
+      style={photo.focus ? { '--focus': photo.focus } : undefined}
       className={loaded ? 'is-loaded' : undefined}
       loading={eager ? 'eager' : 'lazy'}
       draggable={false}
@@ -43,7 +44,7 @@ export default function Frame({ photo, index, onClick, eager = false }) {
       type="button"
       className="frame"
       onClick={onClick}
-      aria-label={`View larger: ${description} (${photo?.year})`}
+      aria-label={`View larger: ${description}${photo?.year ? ` (${photo.year})` : ''}`}
     >
       {content}
     </button>
