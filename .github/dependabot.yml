@@ -1,15 +1,23 @@
 # Keeps the build tools and GitHub Actions up to date with security fixes.
 # Proposes the updates as pull requests once a month; each one is built and checked before I merge it.
+# Only patch and minor updates: major versions can change how the site is built (Vite 8 broke the
+# security policy), so those are done by hand and tested in a browser first.
 version: 2
 updates:
   - package-ecosystem: github-actions
     directory: /
     schedule:
       interval: monthly
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: npm
     directory: /
     schedule:
       interval: monthly
+    ignore:
+      - dependency-name: '*'
+        update-types: ['version-update:semver-major']
     groups:
       npm:
         patterns: ['*']

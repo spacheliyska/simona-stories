@@ -20,6 +20,9 @@ for (const [page, lang] of Object.entries(pages)) {
   const scripts = [...html.matchAll(/<script([^>]*)>([\s\S]*?)<\/script>/g)]
   const files = scripts.map((m) => m[1].match(/\s(?:data-)?src="([^"]+)"/)?.[1]).filter(Boolean)
   if (!files.some((s) => /\/assets\/[\w-]+\.js$/.test(s))) problems.push(`${page} has no built script`)
+  for (const s of files.filter((s) => !s.startsWith('/') || s.startsWith('//'))) {
+    problems.push(`${page} loads a script from outside the site (${s.slice(0, 40)}…), which the security policy blocks`)
+  }
   for (const s of files.filter((s) => s.includes('/assets/'))) {
     if (!existsSync(`dist/assets/${s.split('/assets/')[1]}`)) problems.push(`${page} links ${s}, which isn't in the build`)
   }
