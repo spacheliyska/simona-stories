@@ -2,7 +2,12 @@ import { useEffect, useRef, useState } from 'react'
 
 // '/photos/01.jpg' → works whether the site lives at the domain root or in a
 // sub-folder (e.g. GitHub Pages: /simona-stories/photos/01.jpg).
-const withBase = (src) => (src?.startsWith('/') ? import.meta.env.BASE_URL + src.slice(1) : src)
+// Local photos get their content hash appended (see vite.config.js) so caches refresh on change.
+const withBase = (src) => {
+  if (!src?.startsWith('/')) return src
+  const v = __PHOTO_VERSIONS__[src]
+  return import.meta.env.BASE_URL + src.slice(1) + (v ? `?v=${v}` : '')
+}
 
 // A single photo with the film treatment. Falls back to an "unexposed" frame
 // if the image is missing, so the layout looks right before photos are added.
