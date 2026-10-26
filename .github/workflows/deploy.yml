@@ -113,7 +113,7 @@ jobs:
           fi
           for i in $(seq 1 30); do
             busy=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$GITHUB_SHA&event=dynamic" \
-              --jq '[.workflow_runs[] | select(.status != "completed")] | length' 2>/dev/null)
+              --jq '[.workflow_runs[] | select(.name == "pages build and deployment" and .status != "completed")] | length' 2>/dev/null)
             [ "${busy:-0}" = 0 ] && break
             echo "Branch publishing still running, waiting..."
             sleep 10
