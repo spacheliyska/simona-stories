@@ -13,7 +13,6 @@ const shortYear = (y) => `'${String(y).slice(-2)}`
 
 export default function App() {
   const [open, setOpen] = useState(null)
-  const hero = photos[0]
   useReveal()
   // While the photo viewer is open, hide the page behind it from keyboard and screen readers.
   const behindViewer = open !== null
@@ -50,7 +49,7 @@ export default function App() {
           <div className="hero-photo reveal" style={{ '--delay': '150ms' }}>
             <span className="tape tape-left" aria-hidden="true" />
             <span className="tape tape-right" aria-hidden="true" />
-            <Frame photo={hero} index={0} onClick={() => setOpen(0)} eager />
+            <Frame photo={site.portrait} index={0} eager />
             <span className="datestamp" aria-hidden="true">{dateStamp}</span>
             <Badge text="Street · Light · Portraits · Sofia · Smolyan · " />
           </div>
@@ -77,9 +76,7 @@ export default function App() {
                 <figure className="sheet-item">
                   <div className="sheet-photo">
                     <Frame photo={p} index={i} onClick={() => setOpen(i)} />
-                    {p.pick && <GreaseCircle />}
-                    {p.pick && <span className="grease-note" aria-hidden="true">keeper!</span>}
-                  </div>
+                    {p.pick && <GreaseCircle />}                  </div>
                   <figcaption>
                     <span className="hand">{p.title}</span>
                     {(p.place || p.year) && (

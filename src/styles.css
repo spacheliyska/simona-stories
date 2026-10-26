@@ -165,7 +165,6 @@ section[id] { scroll-margin-top: 6rem; }
 
 /* ---------- Photo treatment ---------- */
 .frame { position: relative; display: block; width: 100%; padding: 0; overflow: hidden; background: var(--film); }
-/* Faded vintage print: warm cast, softened contrast, lifted blacks */
 .frame img {
   width: 100%;
   height: 100%;
@@ -173,35 +172,13 @@ section[id] { scroll-margin-top: 6rem; }
   /* Crops keep the photo's focal point (eyes, sun…) in view; the hover zoom grows from it too */
   object-position: var(--focus, 50% 50%);
   transform-origin: var(--focus, 50% 50%);
+  /* Hidden only until the file has loaded, then fades in at full clarity */
   opacity: 0;
-  filter: sepia(0.3) saturate(0.78) contrast(0.92) brightness(1.03) hue-rotate(-6deg);
-  transition: opacity 1.2s ease, filter 0.6s ease, transform 0.8s ease;
+  transition: opacity 1.2s ease, transform 0.8s ease;
 }
 .frame img.is-loaded { opacity: 1; }
-.frame::after {
-  content: '';
-  position: absolute;
-  top: 0; right: 0; bottom: 0; left: 0;
-  pointer-events: none;
-  background:
-    radial-gradient(ellipse at 30% 20%, rgba(255, 196, 120, 0.16), transparent 60%),
-    linear-gradient(rgba(70, 40, 20, 0.08), rgba(70, 40, 20, 0.16));
-  mix-blend-mode: screen;
-  box-shadow: inset 0 0 40px rgba(40, 20, 10, 0.45);
-  transition: opacity 0.6s ease;
-}
 button.frame:hover img,
-button.frame:focus-visible img { filter: sepia(0.12) saturate(0.95) contrast(1) brightness(1); transform: scale(1.02); }
-button.frame:hover::after,
-button.frame:focus-visible::after { opacity: 0.5; }
-
-/* The front print "develops" like paper in a darkroom tray */
-.hero-photo .frame img.is-loaded { animation: develop 3.2s ease-out backwards; }
-@keyframes develop {
-  0% { opacity: 0; filter: sepia(0.9) brightness(2.2) contrast(0.4) blur(3px); }
-  35% { opacity: 1; filter: sepia(0.7) brightness(1.6) contrast(0.6) blur(1.5px); }
-  100% { opacity: 1; filter: sepia(0.3) saturate(0.78) contrast(0.92) brightness(1.03) hue-rotate(-6deg); }
-}
+button.frame:focus-visible img { transform: scale(1.02); }
 
 /* Torn strips of masking tape */
 .tape {
@@ -453,18 +430,6 @@ button.frame:focus-visible::after { opacity: 0.5; }
 }
 .reveal-ready .reveal .grease-circle path { stroke-dashoffset: 1; transition: stroke-dashoffset 1.4s ease-in-out 0.6s; }
 .reveal-ready .reveal.is-visible .grease-circle path { stroke-dashoffset: 0; }
-.grease-note {
-  position: absolute;
-  z-index: 3;
-  top: -1.4rem;
-  right: -0.6rem;
-  font-family: var(--hand);
-  font-weight: 500;
-  font-size: 1.7rem;
-  color: var(--grease);
-  transform: rotate(8deg);
-  pointer-events: none;
-}
 .sheet li:nth-child(odd) .sheet-item { transform: rotate(-0.8deg); }
 .sheet li:nth-child(even) .sheet-item { transform: rotate(0.7deg); }
 .sheet .sheet-item:hover,
@@ -591,14 +556,13 @@ button.frame:focus-visible::after { opacity: 0.5; }
   .grain, .leak { animation: none; }
   .reveal-ready .reveal { opacity: 1; transform: none; }
   .badge, .marquee-track { animation: none; }
-  .hero-photo .frame img.is-loaded { animation: none; }
   .reveal-ready .reveal .grease-circle path { stroke-dashoffset: 0; }
   *, *::before, *::after { transition-duration: 0.01ms !important; }
 }
 
 /* ---------- Windows High Contrast / forced colours ---------- */
 @media (forced-colors: active) {
-  .grain, .vignette, .leak, .frame::after, .tape { display: none; }
+  .grain, .vignette, .leak, .tape { display: none; }
   .section-num, .marquee .marquee-outline { color: CanvasText; -webkit-text-stroke: 0; }
   .pill { border-color: ButtonText; }
 }
