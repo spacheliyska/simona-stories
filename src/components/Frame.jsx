@@ -9,15 +9,15 @@ const withBase = (src) => {
   return import.meta.env.BASE_URL + src.slice(1) + (v ? `?v=${v}` : '')
 }
 
-// A single photo with the film treatment. Falls back to an "unexposed" frame
+// A single photo, cropped around its focus point. Falls back to an empty frame
 // if the image is missing, so the layout looks right before photos are added.
-// With `onClick` it renders as a button (opens the viewer); without, a plain figure.
-export default function Frame({ photo, index, onClick, eager = false }) {
+// With `onClick` it renders as a button (opens the viewer); without, a plain block.
+export default function Frame({ photo, index, t, onClick, eager = false }) {
   const [failed, setFailed] = useState(false)
   const [loaded, setLoaded] = useState(false)
   const img = useRef(null)
   const empty = !photo?.src || failed
-  const description = photo?.alt || `${photo?.title}, ${photo?.place}`
+  const description = photo?.alt || [photo?.title, photo?.place].filter(Boolean).join(', ')
 
   // Cached images can finish loading before React attaches onLoad.
   useEffect(() => {
@@ -25,8 +25,8 @@ export default function Frame({ photo, index, onClick, eager = false }) {
   }, [])
 
   const content = empty ? (
-    <div className={`frame-empty tint-${index % 4}`} role="img" aria-label={`Placeholder frame for ${description}`}>
-      <span className="label" aria-hidden="true">frame {String(index + 1).padStart(2, '0')}</span>
+    <div className="frame-empty" role="img" aria-label={`${t.placeholder} ${description}`}>
+      <span className="label" aria-hidden="true">{t.frame} {String(index + 1).padStart(2, '0')}</span>
     </div>
   ) : (
     <img
@@ -49,7 +49,7 @@ export default function Frame({ photo, index, onClick, eager = false }) {
       type="button"
       className="frame"
       onClick={onClick}
-      aria-label={`View larger: ${description}${photo?.year ? ` (${photo.year})` : ''}`}
+      aria-label={`${t.viewLarger}: ${description}${photo?.year ? ` (${photo.year})` : ''}`}
     >
       {content}
     </button>

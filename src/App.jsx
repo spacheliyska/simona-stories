@@ -1,19 +1,29 @@
 import { useState } from 'react'
 import { site } from './siteConfig.js'
 import { photos } from './photos.js'
+import { strings, pick, useLanguage } from './i18n.js'
 import Frame from './components/Frame.jsx'
 import FilmStrip from './components/FilmStrip.jsx'
 import Lightbox from './components/Lightbox.jsx'
-import { Badge, Marquee, GreaseCircle } from './components/Decor.jsx'
+import LanguageSwitch from './components/LanguageSwitch.jsx'
 import { useReveal } from './useReveal.js'
 
-const today = new Date()
-const dateStamp = `'${String(today.getFullYear()).slice(2)} ${String(today.getMonth() + 1).padStart(2, '0')} ${String(today.getDate()).padStart(2, '0')}`
+const year = new Date().getFullYear()
 const shortYear = (y) => `'${String(y).slice(-2)}`
+const frameNumber = (i) => String(i + 1).padStart(2, '0')
+// A photo's texts in the current language.
+const localize = (p, lang) => ({ ...p, title: pick(p.title, lang), place: pick(p.place, lang), alt: pick(p.alt, lang) })
 
 export default function App() {
+  const [lang, setLang] = useLanguage()
   const [open, setOpen] = useState(null)
   useReveal()
+  const t = strings[lang]
+  const name = pick(site.name, lang)
+  const [firstName, ...lastName] = name.split(' ')
+  const portrait = localize(site.portrait, lang)
+  const items = photos.map((p) => localize(p, lang))
+  const instagram = `https://www.instagram.com/${site.instagram}/`
   // While the photo viewer is open, hide the page behind it from keyboard and screen readers.
   const behindViewer = open !== null
   // `inert` for current browsers, `aria-hidden` as a fallback for older ones.
@@ -21,66 +31,51 @@ export default function App() {
 
   return (
     <>
-      <a className="skip-link" href="#main">Skip to content</a>
-      <div className="grain" aria-hidden="true" />
-      <div className="vignette" aria-hidden="true" />
+      <a className="skip-link" href="#main">{t.skip}</a>
 
       <header className="nav" {...hideBehind}>
-        <a href="#main" className="nav-logo" aria-label={`${site.name}, back to top`}>S.P.</a>
-        <nav aria-label="Main">
-          <a href="#work">Work</a>
-          <a href="#contact-sheet">Contact sheet</a>
-          <a href="#about">About</a>
-          <a href="#contact">Contact</a>
+        <a href="#main" className="nav-logo" aria-label={`${name}, ${t.home}`}>S.P.</a>
+        <nav className="nav-links" aria-label={t.mainNav}>
+          <a href="#work">{t.nav.work}</a>
+          <a href="#about">{t.nav.about}</a>
+          <a href="#contact">{t.nav.contact}</a>
         </nav>
+        <LanguageSwitch lang={lang} onChange={setLang} label={t.languageNav} />
       </header>
 
       <main id="main" tabIndex={-1} {...hideBehind}>
         <section className="hero" aria-labelledby="hero-title">
-          <div className="leak leak-1" aria-hidden="true" />
-          <div className="leak leak-2" aria-hidden="true" />
           <div className="hero-text reveal">
-            <p className="label">Roll no. 01 — {site.location}</p>
+            <p className="label">{t.photographer} · {pick(site.location, lang)}</p>
             <h1 id="hero-title">
-              Simona <em>Pacheliyska</em>
+              {firstName} <em>{lastName.join(' ')}</em>
             </h1>
-            <p className="hero-tagline">{site.tagline}</p>
+            <p className="hero-tagline">{pick(site.tagline, lang)}</p>
           </div>
           <div className="hero-photo reveal" style={{ '--delay': '150ms' }}>
-            <span className="tape tape-left" aria-hidden="true" />
-            <span className="tape tape-right" aria-hidden="true" />
-            <Frame photo={site.portrait} index={0} eager />
-            <span className="datestamp" aria-hidden="true">{dateStamp}</span>
-            <Badge text="Street · Light · Portraits · Sofia · Smolyan · " />
+            <Frame photo={portrait} index={0} t={t} eager />
           </div>
         </section>
 
         <section id="work" className="section" aria-labelledby="work-title">
-          <h2 id="work-title" className="section-title reveal">
-            <span className="section-num" aria-hidden="true">01</span> Selected frames
-          </h2>
+          <SectionHead id="work-title" number="01" title={t.selected} />
           <div className="reveal">
-            <FilmStrip photos={photos} onOpen={setOpen} />
+            <FilmStrip photos={items} onOpen={setOpen} t={t} />
           </div>
         </section>
 
-        <Marquee words={['Street', 'Light', 'Portraits', 'Sofia', 'Smolyan', 'Golden hour']} />
-
-        <section id="contact-sheet" className="section" aria-labelledby="sheet-title">
-          <h2 id="sheet-title" className="section-title reveal">
-            <span className="section-num" aria-hidden="true">02</span> Contact sheet
-          </h2>
-          <ul className="sheet">
-            {photos.map((p, i) => (
-              <li key={i} className="reveal" style={{ '--delay': `${(i % 4) * 90}ms` }}>
-                <figure className="sheet-item">
-                  <div className="sheet-photo">
-                    <Frame photo={p} index={i} onClick={() => setOpen(i)} />
-                    {p.pick && <GreaseCircle />}                  </div>
+        <section className="section" aria-labelledby="all-title">
+          <SectionHead id="all-title" number="02" title={t.all} />
+          <ul className="grid">
+            {items.map((p, i) => (
+              <li key={p.src || i} className="reveal" style={{ '--delay': `${(i % 4) * 80}ms` }}>
+                <figure className="grid-item">
+                  <Frame photo={p} index={i} t={t} onClick={() => setOpen(i)} />
                   <figcaption>
-                    <span className="hand">{p.title}</span>
+                    <span className="grid-number" aria-hidden="true">{frameNumber(i)}</span>
+                    <span className="grid-title">{p.title}</span>
                     {(p.place || p.year) && (
-                      <span className="label">{[p.place, p.year && shortYear(p.year)].filter(Boolean).join(' · ')}</span>
+                      <span className="grid-meta">{[p.place, p.year && shortYear(p.year)].filter(Boolean).join(' · ')}</span>
                     )}
                   </figcaption>
                 </figure>
@@ -89,43 +84,34 @@ export default function App() {
           </ul>
         </section>
 
-        <section id="about" className="section about" aria-labelledby="about-title">
-          <h2 id="about-title" className="section-title reveal">
-            <span className="section-num" aria-hidden="true">03</span> About
-          </h2>
+        <section id="about" className="section" aria-labelledby="about-title">
+          <SectionHead id="about-title" number="03" title={t.about} />
           <div className="about-layout">
-            <div className="about-print reveal">
-              <span className="tape tape-center" aria-hidden="true" />
-              <Frame photo={site.portrait} index={1} />
-              <p className="hand about-print-caption" aria-hidden="true">me, by the sea</p>
+            <div className="about-photo reveal">
+              <Frame photo={portrait} index={1} t={t} />
             </div>
             <div className="about-body">
-              {site.about.map((t, i) => (
-                <p key={i} className="reveal" style={{ '--delay': `${i * 120}ms` }}>{t}</p>
+              {pick(site.about, lang).map((text, i) => (
+                <p key={i} className="reveal" style={{ '--delay': `${i * 100}ms` }}>{text}</p>
               ))}
-              <p className="signature reveal" style={{ '--delay': '400ms' }}>Simona</p>
             </div>
           </div>
         </section>
 
-        <Marquee words={['Let’s make photographs', 'Sofia', 'Smolyan']} />
-
-        <section id="contact" className="section contact" aria-labelledby="contact-title">
-          <h2 id="contact-title" className="section-title reveal">
-            <span className="section-num" aria-hidden="true">04</span> Let's make photographs
-          </h2>
-          <p className="contact-lead reveal">For portrait sessions, collaborations or just to say hi.</p>
-          <dl className="contact-list reveal" style={{ '--delay': '120ms' }}>
+        <section id="contact" className="section" aria-labelledby="contact-title">
+          <SectionHead id="contact-title" number="04" title={t.contactTitle} />
+          <p className="contact-lead reveal">{t.contactLead}</p>
+          <dl className="contact-list reveal" style={{ '--delay': '100ms' }}>
             <div>
-              <dt className="label">Email</dt>
+              <dt className="label">{t.email}</dt>
               <dd><a href={`mailto:${site.email}`}>{site.email}</a></dd>
             </div>
             <div>
-              <dt className="label">Instagram</dt>
+              <dt className="label">{t.instagram}</dt>
               <dd>
-                <a href={`https://www.instagram.com/${site.instagram}/`} target="_blank" rel="noreferrer">
+                <a href={instagram} target="_blank" rel="noreferrer">
                   @{site.instagram}
-                  <span className="sr-only"> (opens in a new tab)</span>
+                  <span className="sr-only"> {t.newTab}</span>
                 </a>
               </dd>
             </div>
@@ -134,26 +120,29 @@ export default function App() {
       </main>
 
       <footer className="footer" {...hideBehind}>
-        <p>
-          © {today.getFullYear()} {site.name} ·{' '}
-          <a href={`https://www.instagram.com/${site.instagram}/`} target="_blank" rel="noreferrer">
-            @{site.instagram}<span className="sr-only"> on Instagram (opens in a new tab)</span>
-          </a>
-        </p>
-        <p className="footer-legal">
-          All photographs and texts on this website are the property of {site.name} and are protected by copyright.
-          Copying, downloading, reproducing, editing or using them in any form without prior written permission is prohibited.
-        </p>
-        <p className="footer-legal" lang="bg">
-          Всички снимки и текстове на този сайт са собственост на Симона Пачелийска и са защитени от авторското право.
-          Копирането, изтеглянето, възпроизвеждането, обработването или използването им под каквато и да е форма без
-          предварително писмено разрешение е забранено.
-        </p>
+        <div className="footer-top">
+          <p>© {year} {name}</p>
+          <p>
+            <a href={instagram} target="_blank" rel="noreferrer">
+              @{site.instagram}<span className="sr-only"> {t.onInstagram} {t.newTab}</span>
+            </a>
+          </p>
+        </div>
+        <p className="footer-legal">{t.legal}</p>
       </footer>
 
       {open !== null && (
-        <Lightbox photos={photos} index={open} onChange={setOpen} onClose={() => setOpen(null)} />
+        <Lightbox photos={items} index={open} t={t} onChange={setOpen} onClose={() => setOpen(null)} />
       )}
     </>
+  )
+}
+
+function SectionHead({ id, number, title }) {
+  return (
+    <div className="section-head reveal">
+      <h2 id={id} className="section-title">{title}</h2>
+      <span className="label" aria-hidden="true">{number}</span>
+    </div>
   )
 }
