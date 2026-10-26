@@ -25,3 +25,7 @@ desktop.ini
 
 # Full-size originals (web copies live in public/photos)
 originals/
+
+# Photos stay on this computer only, so they aren't public in the repo
+public/photos/*
+!public/photos/PUT-YOUR-PHOTOS-HERE.txt
