@@ -273,13 +273,11 @@ button.frame:focus-visible img { transform: scale(1.025); }
   grid-template-columns: 9rem 1fr;
   align-items: baseline;
   gap: 0.25rem 1rem;
-  padding: 1.25rem 0;
+  padding: 0.9rem 0;
   border-bottom: 1px solid var(--line);
 }
 .contact-list dd { margin: 0; }
 .contact-list a {
-  font-family: var(--serif);
-  font-size: clamp(1.25rem, 2.2vw, 1.6rem);
   text-decoration-color: var(--line);
   text-decoration-thickness: 1px;
   overflow-wrap: anywhere;
