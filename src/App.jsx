@@ -73,7 +73,7 @@ export default function App() {
                   <Frame photo={p} index={i} t={t} onClick={() => setOpen(i)} />
                   <figcaption>
                     <span className="grid-number" aria-hidden="true">{frameNumber(i)}</span>
-                    <span className="grid-title">{p.title}</span>
+                    {p.title && <span className="grid-title">{p.title}</span>}
                     {(p.place || p.year) && (
                       <span className="grid-meta">{[p.place, p.year && shortYear(p.year)].filter(Boolean).join(' · ')}</span>
                     )}

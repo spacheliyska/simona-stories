@@ -3,7 +3,7 @@
 // ({ en: '…', bg: '…' }); a missing Bulgarian text falls back to the English one.
 export const site = {
   name: { en: 'Simona Pacheliyska', bg: 'Симона Пачелийска' },
-  tagline: { en: 'Street, light and portraits', bg: 'Градът, светлината и хората' },
+  tagline: { en: 'Street, light and portraits', bg: 'Портрети и улична фотография' },
   location: { en: 'Sofia & Smolyan, Bulgaria', bg: 'София и Смолян' },
   email: 'pacheliyskasimona@gmail.com',
   instagram: 'simona.stories',
@@ -26,9 +26,8 @@ export const site = {
       "I'm available for portrait sessions and happy to collaborate on personal, creative and editorial projects.",
     ],
     bg: [
-      'Казвам се Симона и съм фотограф в София и Смолян. Снимам хора в реална среда – по улиците, на площадите, в парка, там, където светлината е най-хубава.',
-      'Стилът ми е модерен и изчистен: естествена светлина, наситени цветове и ясни детайли. Фотосесиите при мен са спокойни, затова портретите излизат уверени и естествени, а не изкуствени.',
-      'Правя портретни фотосесии по поръчка и с удоволствие се включвам в съвместни проекти – лични, творчески или за медии.',
+      'Снимам портрети и улична фотография в София и Смолян – с естествена светлина, в изчистен и модерен стил.',
+      'Приемам поръчки за фотосесии и предложения за съвместни проекти.',
     ],
   },
 }
