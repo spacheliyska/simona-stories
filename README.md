@@ -1,15 +1,16 @@
 # simona-stories
 
-Portfolio website of **Simona Pacheliyska**, a street and portrait photographer based in Sofia and Smolyan, Bulgaria.
-It has a warm, nostalgic film look: grain, light leaks, a film strip, a contact sheet and hand-marked prints.
+This is my portfolio website. I'm **Simona Pacheliyska**, a street and portrait photographer based in Sofia and Smolyan, Bulgaria.
+I wanted the site to feel like a box of old prints: film grain, light leaks, a film strip, a contact sheet and hand-marked favourites,
+while the photos themselves stay sharp and true to colour.
 
 **Live site:** https://spacheliyska.github.io/simona-stories/
 
-Built with React 19 and Vite 7. Deployed automatically to GitHub Pages with GitHub Actions.
+I built it with React 19 and Vite 7, and it deploys itself to GitHub Pages with GitHub Actions every time I push.
 
 ---
 
-## Run it on your computer
+## Running it locally
 
 1. Install [Node.js](https://nodejs.org) (LTS).
 2. In this folder:
@@ -17,35 +18,52 @@ Built with React 19 and Vite 7. Deployed automatically to GitHub Pages with GitH
    npm install
    npm run dev
    ```
-3. Open the address it prints (usually http://localhost:5173). The page reloads by itself when you save a file.
+3. Open the address it prints (usually http://localhost:5173). The page reloads on its own when I save a file.
 
-To check the final version exactly as it will be published (including the version for older browsers):
+To check the final version exactly as it will be published (including the build for older browsers):
 
 ```
 npm run build
 npm run preview
 ```
 
-> **Windows tip:** if `npm` or `git` "is not recognized", close VS Code completely and open it again.
-> If you see "running scripts is disabled", use `npm.cmd` instead of `npm`.
+> **Note to self (Windows):** if `npm` or `git` "is not recognized", close VS Code completely and open it again.
+> If it says "running scripts is disabled", use `npm.cmd` instead of `npm`.
 
-## Edit the content
+## Where everything lives
 
 | What | Where |
 | --- | --- |
-| Name, slogan, location, About text, email, Instagram | `src/siteConfig.js` |
-| Photos (title, place, year, description, favourites) | `src/photos.js` |
-| Photo files | `public/photos/` (`01.jpg`, `02.jpg`, … and `me.jpg` for the About section) |
+| My name, slogan, location, About text, email, Instagram | `src/siteConfig.js` |
+| Gallery photos (title, place, year, description, favourites, focus point) | `src/photos.js` |
+| Photo files | `public/photos/` (`01.jpg`, `02.jpg`, … and `me.jpg`, my portrait) |
 | Google title, description and keywords | `index.html` |
 | Colours, fonts, layout | `src/styles.css` |
 
-Photo tips:
-- `01` is the large "developing" print on the front page.
-- Add `alt: '...'` to describe each photo in one sentence for blind visitors using screen readers.
-- Add `pick: true` to circle a favourite in red grease pencil on the contact sheet.
-- Export at about 2000px on the long side, JPG quality ~80, so the site stays fast.
+How I add a photo:
+- Export it at about 2000px on the long side, JPG quality ~80, so the site stays fast. Full-size originals go in
+  `originals/`, which is kept out of git.
+- Put it in `public/photos/` and add a line for it in `src/photos.js`. The order there is the order on the site.
+- `alt` describes the photo in one sentence for people using screen readers.
+- `place` and `year` are optional: left as `''`, they simply don't show.
+- `focus` is the point that has to survive cropping (usually the eyes), as `'x% y%'` from the top-left.
+- `pick: true` circles a favourite in red grease pencil on the contact sheet.
 
-## Deployment (CI/CD)
+My portrait (`me.jpg`) is the big photo on the front page and also appears in the About section.
+
+## Caching
+
+GitHub Pages doesn't let me set cache headers (every file gets a fixed 10 minutes), so the site uses a small
+service worker (`public/sw.js`) to cache in the visitor's browser:
+
+- **Pages** are always checked with the server, so a new deploy shows up immediately. The cached copy is only used offline.
+- **JS, CSS and fonts** have a content hash in their filenames, so they are cached for good.
+- **Photos** are requested as `01.jpg?v=<content hash>` (worked out at build time in `vite.config.js`), so they are
+  cached for good too, and a replaced photo gets a new address straight away.
+
+The service worker only runs on the built site, never in `npm run dev`.
+
+## Deployment
 
 The workflow in `.github/workflows/deploy.yml` runs on GitHub Actions:
 
@@ -53,45 +71,40 @@ The workflow in `.github/workflows/deploy.yml` runs on GitHub Actions:
 - **Every pull request:** builds the site to check nothing is broken, without publishing.
 - **Manually:** *Actions* tab → *Build and deploy* → *Run workflow*.
 
-**One-time setup:** on GitHub, open the repository → **Settings** → **Pages** → under *Build and deployment*,
-set **Source** to **GitHub Actions**. After that, every `git push` updates the live site.
+**Setup that has to stay this way:** **Settings** → **Pages** → *Build and deployment* → **Source** must be
+**GitHub Actions**, not "Deploy from a branch". With the branch option, GitHub publishes the raw source files
+over the built site and the page comes up blank.
 
-Progress and errors are shown in the repository's **Actions** tab.
+Progress and errors are in the repository's **Actions** tab.
 
-### Using your own domain later
+### If I move to my own domain
 
 1. Buy a domain (e.g. `simonapacheliyska.com`) and add it under **Settings → Pages → Custom domain**.
 2. In `.github/workflows/deploy.yml`, change `BASE_PATH` to `/`.
-3. Replace `https://spacheliyska.github.io/simona-stories/` with your domain in `index.html`,
+3. Replace `https://spacheliyska.github.io/simona-stories/` with the domain in `index.html`,
    `public/robots.txt` and `public/sitemap.xml`.
 
-## Get found on Google
+## Getting found on Google
 
 1. Add the site in [Google Search Console](https://search.google.com/search-console),
    submit `sitemap.xml` and click **Request indexing**.
-2. Put the website link in your Instagram bio and other profiles. Links pointing to your site
-   help Google connect your name to it.
+2. Link the site from my Instagram bio and other profiles. Links pointing to the site
+   help Google connect my name to it.
 
-## Before going public (legal checklist)
+## Rights and privacy
 
-- [ ] Replace every mock photo in `src/photos.js`. They are placeholder stock photos from picsum.photos by other
-      photographers and must not appear on the site as your work.
-- [ ] Where a person is clearly recognisable, especially if the site promotes paid work,
-      get their consent or choose another frame.
-- [ ] Use only text you wrote yourself, or that you have the rights to.
-
-Already handled:
-- **Copyright:** the site footer states (in English and Bulgarian) that copying or using the photos and texts
-  without written permission is prohibited, and `LICENSE` reserves all rights for this repository.
-- Fonts (Fraunces, Atkinson Hyperlegible, IBM Plex Mono, Caveat) are under the SIL Open Font License and
+- **Copyright:** all photos and texts are mine. The site footer states (in English and Bulgarian) that copying or
+  using them without my written permission is prohibited, and `LICENSE` reserves all rights for this repository.
+- **People in my photos:** where someone is clearly recognisable, I make sure I have their consent.
+- **Fonts** (Fraunces, Atkinson Hyperlegible, IBM Plex Mono, Caveat) are under the SIL Open Font License and
   bundled with the site, so no visitor data is sent to Google Fonts (GDPR).
-- No cookies or analytics, so no cookie banner is needed. If you add analytics later, add a consent banner.
+- **No cookies or analytics**, so no cookie banner is needed. If I ever add analytics, I need to add a consent banner.
 
 ## Accessibility and browser support
 
-- Keyboard navigation, skip link, visible focus, screen-reader labels, accessible photo viewer.
+- Keyboard navigation, skip link, visible focus, screen-reader labels and an accessible photo viewer.
 - Respects "reduce motion" and Windows High Contrast settings.
-- Works in current Chrome, Edge, Firefox, Safari and Samsung Internet. It also works in older versions back to
+- Works in current Chrome, Edge, Firefox, Safari and Samsung Internet, and in older versions back to
   Safari/iOS 12, Chrome 64 and Firefox 67 through an automatic legacy build. Internet Explorer is not supported.
 
 ## Project structure
@@ -99,15 +112,17 @@ Already handled:
 ```
 .github/workflows/deploy.yml   CI/CD: build + publish to GitHub Pages
 index.html                     Page shell + Google/SEO information
-public/                        Files served as-is (photos, favicon, robots.txt, sitemap.xml)
+vite.config.js                 Build settings + photo content hashes
+public/                        Files served as-is (photos, service worker, favicon, robots.txt, sitemap.xml)
 src/
+  main.jsx                     Entry point, fonts, service worker registration
   App.jsx                      Page layout and sections
-  siteConfig.js                Your details and About text
-  photos.js                    Photo list
+  siteConfig.js                My details and About text
+  photos.js                    Gallery photo list
   styles.css                   All styling
   useReveal.js                 Fade-in on scroll
   components/
-    Frame.jsx                  A single photo with the film look
+    Frame.jsx                  A single photo (cropping, loading, caching URL)
     FilmStrip.jsx              Scrollable 35mm film strip
     Lightbox.jsx               Full-screen photo viewer
     Decor.jsx                  Rotating stamp, word band, grease-pencil circle
