@@ -1,6 +1,8 @@
 # CI/CD for the site.
 # - Pull requests: build the site to check nothing is broken.
-# - Pushes to main (or a manual run): build and publish to GitHub Pages.
+# - Pushes to main (or a manual run): build, check, publish to GitHub Pages,
+#   then check the live site. A build that fails a check is never published,
+#   so the live site keeps its last good version.
 name: Build and deploy
 
 on:
@@ -12,25 +14,35 @@ on:
 permissions:
   contents: read
 
+# One deploy at a time, and never cancel one halfway (stale pull request builds are cancelled).
 concurrency:
   group: pages-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      actions: read # to fetch the photos from the last good build
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
-      # The photos are kept out of the public repo (see .gitignore). Without them the
-      # site would go live with empty frames, so stop here: the live site keeps its last version.
-      - name: Stop if the photos are missing
+      # The photos are kept out of the public repo (see .gitignore).
+      # Until they have a private home, take them from the last good build
+      # (run 40302815386; GitHub keeps its files until 2026-10-27 09:51 UTC).
+      - name: Get the photos
         if: github.event_name != 'pull_request'
+        env:
+          GH_TOKEN: ${{ github.token }}
         run: |
-          if ! ls public/photos | grep -qiE '\.(jpe?g|png|webp|avif)$'; then
-            echo "::error::No photos in public/photos (they are kept out of git). Not deploying, so the live site keeps its photos."
-            exit 1
-          fi
+          gh run download 40302815386 --name github-pages --dir "$RUNNER_TEMP/last-good" --repo "$GITHUB_REPOSITORY"
+          mkdir -p "$RUNNER_TEMP/last-good/site"
+          tar -xf "$RUNNER_TEMP/last-good/artifact.tar" -C "$RUNNER_TEMP/last-good/site"
+          cp "$RUNNER_TEMP/last-good/site/photos/"*.jpg public/photos/
+          ls public/photos
 
       - uses: actions/setup-node@v7
         with:
@@ -45,11 +57,17 @@ jobs:
           # Leave empty once you use a custom domain (site served from '/').
           BASE_PATH: /${{ github.event.repository.name }}/
 
+      - name: Check the build
+        run: node scripts/check-build.mjs
+        env:
+          REQUIRE_PHOTOS: ${{ github.event_name != 'pull_request' }}
+
       - name: Upload site for GitHub Pages
         if: github.event_name != 'pull_request'
         uses: actions/upload-pages-artifact@v5
         with:
           path: dist
+          retention-days: 30 # an older version can be put back by re-running its deploy job
 
   deploy:
     if: github.event_name != 'pull_request'
@@ -58,9 +76,48 @@ jobs:
     permissions:
       pages: write
       id-token: write
+      actions: read # to see whether GitHub's own branch publishing is still running
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
+    outputs:
+      page_url: ${{ steps.deployment.outputs.page_url }}
     steps:
+      # If Settings → Pages → Source is "Deploy from a branch", GitHub also publishes the raw
+      # source on every push, which shows a blank page. Wait for it so the built site lands last.
+      - name: Wait for branch publishing, if any
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if [ "$(gh api "repos/$GITHUB_REPOSITORY/pages" --jq .build_type 2>/dev/null)" = legacy ]; then
+            echo "::warning::Settings → Pages → Source is 'Deploy from a branch'. Switch it to 'GitHub Actions'."
+          fi
+          for i in $(seq 1 30); do
+            busy=$(gh api "repos/$GITHUB_REPOSITORY/actions/runs?head_sha=$GITHUB_SHA&event=dynamic" \
+              --jq '[.workflow_runs[] | select(.status != "completed")] | length' 2>/dev/null)
+            [ "${busy:-0}" = 0 ] && break
+            echo "Branch publishing still running, waiting..."
+            sleep 10
+          done
+
       - id: deployment
         uses: actions/deploy-pages@v5
+
+  verify:
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check the live site
+        env:
+          URL: ${{ needs.deploy.outputs.page_url }}
+        run: |
+          for i in $(seq 1 18); do
+            js=$(curl -fsSL "${URL}?check=${GITHUB_RUN_ID}-$i" | grep -oE 'assets/index-[^"]+\.js' | head -1)
+            if [ -n "$js" ] && curl -fsS -o /dev/null "${URL}${js}" && curl -fsS -o /dev/null "${URL}photos/me.jpg?check=$i"; then
+              echo "The live site is up: ${URL}"
+              exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::The live site doesn't look right. Put the last good version back: open its run in the Actions tab and re-run its deploy job."
+          exit 1
