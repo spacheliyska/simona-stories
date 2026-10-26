@@ -1,5 +1,0 @@
-Drop your photos in this folder, named 01.jpg, 02.jpg, 03.jpg ...
-Then edit src/photos.js to set titles, places and years.
-
-Tip: export them around 2000px on the long side, JPG quality ~80,
-so the site stays fast (Google ranks fast sites higher).

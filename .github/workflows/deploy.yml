@@ -3,6 +3,8 @@
 # - Pushes to main (or a manual run): build, check, publish to GitHub Pages,
 #   then check the live site. A build that fails a check is never published,
 #   so the live site keeps its last good version.
+# Actions are pinned to exact versions (commit hashes), so a hijacked release can't
+# run here; Dependabot (.github/dependabot.yml) proposes updates.
 name: Build and deploy
 
 on:
@@ -22,29 +24,45 @@ concurrency:
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 15
     permissions:
       contents: read
-      actions: read # to fetch the photos from the last good build
+      actions: read # for the photo fallback below
+    env:
+      HAS_PHOTOS_KEY: ${{ secrets.PHOTOS_DEPLOY_KEY != '' }}
     steps:
-      - uses: actions/checkout@v7
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      # The photos are kept out of the public repo (see .gitignore).
-      # Until they have a private home, take them from the last good build
-      # (run 40302815386; GitHub keeps its files until 2026-10-27 09:51 UTC).
+      # My photos live in a private repo (<this repo>-photos), never in this public one.
+      # The deploy key can only read that one repo.
       - name: Get the photos
-        if: github.event_name != 'pull_request'
+        id: photos
+        if: github.event_name != 'pull_request' && env.HAS_PHOTOS_KEY == 'true'
+        continue-on-error: true
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          repository: ${{ github.repository }}-photos
+          ssh-key: ${{ secrets.PHOTOS_DEPLOY_KEY }}
+          path: public/photos
+          persist-credentials: false
+
+      # If the private repo isn't set up (or can't be reached), reuse the photos of the
+      # last good deploy, so the site never goes up without them.
+      - name: Fall back to the photos of the last good deploy
+        if: github.event_name != 'pull_request' && steps.photos.outcome != 'success'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh run download 40302815386 --name github-pages --dir "$RUNNER_TEMP/last-good" --repo "$GITHUB_REPOSITORY"
-          mkdir -p "$RUNNER_TEMP/last-good/site"
+          echo "::warning::Photos taken from the last good deploy: the private photo repo isn't set up or couldn't be read."
+          run=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId')
+          gh run download "$run" --repo "$GITHUB_REPOSITORY" --name github-pages --dir "$RUNNER_TEMP/last-good"
+          mkdir -p "$RUNNER_TEMP/last-good/site" public/photos
           tar -xf "$RUNNER_TEMP/last-good/artifact.tar" -C "$RUNNER_TEMP/last-good/site"
           cp "$RUNNER_TEMP/last-good/site/photos/"*.jpg public/photos/
-          ls public/photos
 
-      - uses: actions/setup-node@v7
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version: 24
           cache: npm
@@ -64,7 +82,7 @@ jobs:
 
       - name: Upload site for GitHub Pages
         if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@v5
+        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: dist
           retention-days: 30 # an older version can be put back by re-running its deploy job
@@ -73,6 +91,7 @@ jobs:
     if: github.event_name != 'pull_request'
     needs: build
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     permissions:
       pages: write
       id-token: write
@@ -101,20 +120,26 @@ jobs:
           done
 
       - id: deployment
-        uses: actions/deploy-pages@v5
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
 
   verify:
     needs: deploy
     runs-on: ubuntu-latest
+    timeout-minutes: 10
     steps:
       - name: Check the live site
         env:
           URL: ${{ needs.deploy.outputs.page_url }}
         run: |
           for i in $(seq 1 18); do
-            js=$(curl -fsSL "${URL}?check=${GITHUB_RUN_ID}-$i" | grep -oE 'assets/index-[^"]+\.js' | head -1)
-            if [ -n "$js" ] && curl -fsS -o /dev/null "${URL}${js}" && curl -fsS -o /dev/null "${URL}photos/me.jpg?check=$i"; then
-              echo "The live site is up: ${URL}"
+            ok=true
+            for page in "" "bg/"; do
+              js=$(curl -fsSL "${URL}${page}?check=${GITHUB_RUN_ID}-$i" | grep -oE 'assets/[A-Za-z0-9_-]+\.js' | head -1)
+              [ -n "$js" ] && curl -fsS -o /dev/null "${URL}${js}" || ok=false
+            done
+            curl -fsS -o /dev/null "${URL}photos/me.jpg?check=$i" || ok=false
+            if $ok; then
+              echo "The live site is up: ${URL} and ${URL}bg/"
               exit 0
             fi
             sleep 10

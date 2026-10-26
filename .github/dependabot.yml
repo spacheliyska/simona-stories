@@ -1,0 +1,15 @@
+# Keeps the build tools and GitHub Actions up to date with security fixes.
+# Proposes the updates as pull requests once a month; each one is built and checked before I merge it.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: monthly
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: monthly
+    groups:
+      npm:
+        patterns: ['*']
