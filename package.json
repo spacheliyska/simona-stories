@@ -1,0 +1,36 @@
+{
+  "name": "simona-pacheliyska-photography",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "browserslist": [
+    "defaults",
+    "Safari >= 12",
+    "iOS >= 12",
+    "Chrome >= 64",
+    "Firefox >= 67",
+    "Edge >= 79",
+    "Samsung >= 9",
+    "not IE 11"
+  ],
+  "dependencies": {
+    "@fontsource-variable/fraunces": "^5.3.0",
+    "@fontsource/atkinson-hyperlegible": "^5.3.0",
+    "@fontsource/caveat": "^5.3.0",
+    "@fontsource/ibm-plex-mono": "^5.3.0",
+    "react": "^19.2.0",
+    "react-dom": "^19.2.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-legacy": "^7.2.1",
+    "@vitejs/plugin-react": "^5.0.0",
+    "autoprefixer": "^10.6.1",
+    "terser": "^5.51.2",
+    "vite": "^7.1.0"
+  }
+}

@@ -1,0 +1,24 @@
+Copyright (c) Simona Pacheliyska. All rights reserved.
+
+PHOTOGRAPHS AND TEXT
+All photographs (including everything in public/photos/) and all written content
+in this repository and on the website are the exclusive property of
+Simona Pacheliyska and are protected by copyright law, including the Bulgarian
+Copyright and Neighbouring Rights Act and applicable international treaties.
+
+No permission is granted to copy, download, reproduce, distribute, publish,
+edit, adapt, sell or otherwise use any of these photographs or texts, in whole
+or in part, in any form or medium, without prior written permission from
+Simona Pacheliyska.
+
+The fact that this repository is publicly visible does not grant any licence.
+
+Permission requests: pacheliyskasimona@gmail.com
+
+SOURCE CODE
+The website source code is also provided without any licence for reuse unless
+agreed in writing.
+
+Third-party components keep their own licences: React, Vite and other npm
+packages (MIT and similar licences), and the fonts Fraunces, Atkinson
+Hyperlegible, IBM Plex Mono and Caveat (SIL Open Font License 1.1).
