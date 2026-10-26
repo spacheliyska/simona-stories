@@ -28,7 +28,7 @@ export const photos = [
   },
   {
     src: '/photos/03.jpg', focus: '54% 36%', place: '', year: '',
-    title: { en: 'Autumn garden', bg: 'Есенна градина' },
+    title: { en: 'Autumn garden', bg: 'Есен в парка' },
     alt: {
       en: 'A woman in sunglasses, a camel jacket and black boots sitting on a white garden chair in a park.',
       bg: 'Жена със слънчеви очила, яке в цвят камел и черни ботуши, седнала на бял градински стол в парк.',
@@ -36,7 +36,7 @@ export const photos = [
   },
   {
     src: '/photos/04.jpg', focus: '47% 57%', place: '', year: '',
-    title: { en: 'Last light', bg: 'Последна светлина' },
+    title: { en: 'Last light', bg: 'Последни лъчи' },
     alt: {
       en: 'The sun setting behind a dark mountain ridge under a deep red sky.',
       bg: 'Слънцето залязва зад тъмен планински хребет под наситено червено небе.',
@@ -44,7 +44,7 @@ export const photos = [
   },
   {
     src: '/photos/05.jpg', focus: '44% 16%', place: '', year: '',
-    title: { en: 'Fallen leaves', bg: 'Окапали листа' },
+    title: { en: 'Fallen leaves', bg: 'Есенна шума' },
     alt: {
       en: 'A woman in jeans and a mauve top leaning against a tree trunk on a lawn covered in autumn leaves.',
       bg: 'Жена с дънки и бледолилава блуза, облегната на дърво на поляна, покрита с есенни листа.',
@@ -52,7 +52,7 @@ export const photos = [
   },
   {
     src: '/photos/06.jpg', focus: '50% 25%', place: '', year: '',
-    title: { en: 'The bow tie', bg: 'Папийонката' },
+    title: { en: 'The bow tie', bg: 'Последни щрихи' },
     alt: {
       en: 'A young woman straightening the red bow tie of a young man in a burgundy suit.',
       bg: 'Млада жена оправя червената папийонка на младеж в бордо костюм.',
@@ -60,7 +60,7 @@ export const photos = [
   },
   {
     src: '/photos/07.jpg', focus: '51% 38%', place: '', year: '',
-    title: { en: 'Pumpkin season', bg: 'Сезонът на тиквите' },
+    title: { en: 'Pumpkin season', bg: 'Време за тикви' },
     alt: {
       en: 'A blonde woman in a black leather jacket sitting on hay bales among pumpkins and yellow chrysanthemums.',
       bg: 'Руса жена в черно кожено яке, седнала на бали сено сред тикви и жълти хризантеми.',
@@ -92,7 +92,7 @@ export const photos = [
   },
   {
     src: '/photos/11.jpg', focus: '43% 22%', place: '', year: '',
-    title: { en: 'The bridge', bg: 'Мостчето' },
+    title: { en: 'The bridge', bg: 'На мостчето' },
     alt: {
       en: 'A girl with long hair in a white sweatshirt crouching on a wooden footbridge.',
       bg: 'Момиче с дълга коса и бял суитшърт, приклекнало на дървено мостче.',

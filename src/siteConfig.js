@@ -3,8 +3,8 @@
 // ({ en: '…', bg: '…' }); a missing Bulgarian text falls back to the English one.
 export const site = {
   name: { en: 'Simona Pacheliyska', bg: 'Симона Пачелийска' },
-  tagline: { en: 'Street, light and portraits', bg: 'Улици, светлина и портрети' },
-  location: { en: 'Sofia & Smolyan, Bulgaria', bg: 'София и Смолян, България' },
+  tagline: { en: 'Street, light and portraits', bg: 'Градът, светлината и хората' },
+  location: { en: 'Sofia & Smolyan, Bulgaria', bg: 'София и Смолян' },
   email: 'pacheliyskasimona@gmail.com',
   instagram: 'simona.stories',
   // Your photo for the front page and the About section. Put it in /public/photos/me.jpg
@@ -21,14 +21,14 @@ export const site = {
   },
   about: {
     en: [
-      "I'm Simona, a photographer drawn to the quiet character of cities: the lines and textures of buildings, the slow drama of a sunset settling over rooftops, and the faces of the people I portray.",
-      'My work is guided by warm light, gentle grain and an unhurried attention to detail. I look for images that feel less like documents and more like recollections, as though remembered rather than simply seen.',
-      'I welcome commissions for portrait sessions, as well as collaborations on personal and editorial projects.',
+      "I'm Simona, a photographer based in Sofia and Smolyan. I photograph people in real places: streets, squares and parks, wherever the light is best.",
+      'My style is modern and clean: natural light, vivid colours and sharp detail. Sessions with me are relaxed, so the portraits come out confident and natural, never stiff.',
+      "I'm available for portrait sessions and happy to collaborate on personal, creative and editorial projects.",
     ],
     bg: [
-      'Казвам се Симона. Като фотограф ме привлича тихият характер на градовете: линиите и текстурите на сградите, бавната драма на залеза над покривите и лицата на хората, които снимам.',
-      'В работата си следвам топлата светлина, деликатното зърно и спокойното внимание към детайла. Търся кадри, които са по-скоро спомени, отколкото документи – сякаш запомнени, а не просто видени.',
-      'Приемам поръчки за портретни фотосесии, както и предложения за сътрудничество по лични и редакционни проекти.',
+      'Казвам се Симона и съм фотограф в София и Смолян. Снимам хора в реална среда – по улиците, на площадите, в парка, там, където светлината е най-хубава.',
+      'Стилът ми е модерен и изчистен: естествена светлина, наситени цветове и ясни детайли. Фотосесиите при мен са спокойни, затова портретите излизат уверени и естествени, а не изкуствени.',
+      'Правя портретни фотосесии по поръчка и с удоволствие се включвам в съвместни проекти – лични, творчески или за медии.',
     ],
   },
 }
