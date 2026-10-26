@@ -40,7 +40,7 @@ for (const [page, lang] of Object.entries(pages)) {
   }
 }
 
-// The private photo repo's history must never be published.
+// A .git folder must never be published.
 const published = readdirSync('dist', { recursive: true }).map(String)
 if (published.some((p) => p.split(/[\\/]/).includes('.git'))) problems.push('dist contains a .git folder')
 

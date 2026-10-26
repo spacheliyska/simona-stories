@@ -27,35 +27,32 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-      actions: read # for the photo fallback below
+      actions: read
     env:
-      HAS_PHOTOS_KEY: ${{ secrets.PHOTOS_DEPLOY_KEY != '' }}
+      HAS_PHOTOS_SOURCE: ${{ secrets.PHOTOS_REPO != '' && secrets.PHOTOS_DEPLOY_KEY != '' }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
 
-      # My photos live in a private repo (<this repo>-photos), never in this public one.
-      # The deploy key can only read that one repo.
       - name: Get the photos
         id: photos
-        if: github.event_name != 'pull_request' && env.HAS_PHOTOS_KEY == 'true'
+        if: github.event_name != 'pull_request' && env.HAS_PHOTOS_SOURCE == 'true'
         continue-on-error: true
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          repository: ${{ github.repository }}-photos
+          repository: ${{ secrets.PHOTOS_REPO }}
           ssh-key: ${{ secrets.PHOTOS_DEPLOY_KEY }}
           path: public/photos
           persist-credentials: false
 
-      # If the private repo isn't set up (or can't be reached), reuse the photos of the
-      # last good deploy, so the site never goes up without them.
-      - name: Fall back to the photos of the last good deploy
+      # Never go up without photos: if they can't be fetched, reuse the ones of the last good deploy.
+      - name: Reuse the photos of the last good deploy
         if: github.event_name != 'pull_request' && steps.photos.outcome != 'success'
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          echo "::warning::Photos taken from the last good deploy: the private photo repo isn't set up or couldn't be read."
+          echo "::warning::Photos taken from the last good deploy."
           run=$(gh run list --repo "$GITHUB_REPOSITORY" --workflow deploy.yml --branch main --status success --limit 1 --json databaseId --jq '.[0].databaseId')
           gh run download "$run" --repo "$GITHUB_REPOSITORY" --name github-pages --dir "$RUNNER_TEMP/last-good"
           mkdir -p "$RUNNER_TEMP/last-good/site" public/photos
@@ -85,7 +82,7 @@ jobs:
         uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
         with:
           path: dist
-          retention-days: 30 # an older version can be put back by re-running its deploy job
+          retention-days: 1
 
   deploy:
     if: github.event_name != 'pull_request'
@@ -144,5 +141,22 @@ jobs:
             fi
             sleep 10
           done
-          echo "::error::The live site doesn't look right. Put the last good version back: open its run in the Actions tab and re-run its deploy job."
+          echo "::error::The live site doesn't look right. Put the last good version back: revert the last change and push."
           exit 1
+
+  # The uploaded copy of the site is only needed for the deploy: delete this run's copy once it's over.
+  cleanup:
+    if: always() && github.event_name != 'pull_request'
+    needs: [build, deploy, verify]
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      actions: write
+    steps:
+      - name: Delete this run's uploaded site
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          for id in $(gh api "repos/$GITHUB_REPOSITORY/actions/runs/$GITHUB_RUN_ID/artifacts" --jq '.artifacts[].id'); do
+            gh api -X DELETE "repos/$GITHUB_REPOSITORY/actions/artifacts/$id" && echo "Deleted artifact $id"
+          done

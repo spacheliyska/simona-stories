@@ -7,8 +7,7 @@
     "dev": "vite",
     "build": "vite build",
     "check": "node scripts/check-build.mjs",
-    "preview": "vite preview",
-    "photos:push": "git -C public/photos add -A && git -C public/photos commit -m \"Update photos\" && git -C public/photos push"
+    "preview": "vite preview"
   },
   "browserslist": [
     "defaults",

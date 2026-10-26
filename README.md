@@ -13,10 +13,7 @@ I built it with React 19 and Vite 7, and it deploys itself to GitHub Pages with 
 ## Running it locally
 
 1. Install [Node.js](https://nodejs.org) (LTS).
-2. My photos aren't in this repo (see [My photos stay private](#my-photos-stay-private)). On a new computer I get them first:
-   ```
-   git clone https://github.com/spacheliyska/simona-stories-photos.git public/photos
-   ```
+2. Put the photo files in `public/photos/` (they are not stored in this repo).
 3. In this folder:
    ```
    npm install
@@ -43,7 +40,7 @@ npm run preview
 | My name, slogan, location, About text, email, Instagram (in both languages) | `src/siteConfig.js` |
 | Gallery photos: titles, places, descriptions (in both languages), focus point | `src/photos.js` |
 | Menu, headings, buttons and the copyright notice in both languages | `src/i18n.js` |
-| Photo files | `public/photos/`, my private photo repo (`01.jpg`, `02.jpg`, … and `me.jpg`, my portrait) |
+| Photo files | `public/photos/` (`01.jpg`, `02.jpg`, … and `me.jpg`, my portrait), not stored in this repo |
 | Google title, description and keywords | `index.html` (English) and `bg/index.html` (Bulgarian) |
 | Colours, fonts, layout | `src/styles.css` |
 
@@ -67,26 +64,9 @@ Both fonts (Playfair Display and Inter) have Cyrillic letters, so the Bulgarian 
    - `alt` describes the photo in one sentence for people using screen readers.
    - `place` and `year` are optional: left as `''`, they simply don't show.
    - `focus` is the point that has to survive cropping (usually the eyes), as `'x% y%'` from the top-left.
-3. Upload it to my private photo repo: `npm run photos:push`
-4. Commit and push this repo as usual, and the deploy picks the new photo up.
-   If I only replaced a photo and changed nothing else: *Actions* tab → *Build and deploy* → *Run workflow*.
+3. Commit and push as usual.
 
 My portrait (`me.jpg`) is the big photo on the front page and also appears in the About section.
-
-## My photos stay private
-
-My photos are never in this public repo. They live in a separate **private** repo, `simona-stories-photos`, which is
-cloned into `public/photos/` (this repo ignores that folder).
-
-The deploy reads them with a **deploy key** that can only *read* that one repo. Its private half is the `PHOTOS_DEPLOY_KEY`
-secret here (*Settings → Secrets and variables → Actions*); its public half is under the photo repo's *Settings → Deploy keys*,
-without write access.
-
-If the photo repo can't be read for some reason, the deploy reuses the photos of the last good deploy and shows a warning, so
-the site never goes up without photos. New photos only appear once the photo repo works again.
-
-The photos are of course visible on the website itself; that's what a portfolio is for. What stays private is the collection
-itself and its history.
 
 ## Deploying without downtime
 
@@ -103,8 +83,7 @@ How it keeps the site up:
 - **The switch is instant.** GitHub Pages swaps the whole site in one go, so nobody ever sees half a deploy.
 - **One deploy at a time**, and a deploy is never cancelled halfway.
 - **The live site is checked after every deploy** (both languages and a photo). If that fails, GitHub emails me.
-- **Going back is one click.** Each deploy keeps its built site for 30 days: in the *Actions* tab I open the last good run
-  and re-run its **deploy** job.
+- **Going back:** I revert the change in git and push; the previous version is rebuilt and checked like any other.
 
 **Setup that has to stay this way:** **Settings** → **Pages** → *Build and deployment* → **Source** must be
 **GitHub Actions**, not "Deploy from a branch". With the branch option, GitHub publishes the raw source files on every push
@@ -134,7 +113,6 @@ On top of that:
 - **HTTPS only:** GitHub Pages enforces it, and browsers are told to always use HTTPS.
 - **The deploy pipeline:** every GitHub Action is pinned to an exact version, each job gets only the permissions it needs,
   and Dependabot proposes updates once a month (`.github/dependabot.yml`). `npm audit` reports no known vulnerabilities.
-- **My photos** stay in the private repo (see above).
 
 Nothing online is unhackable, so the weakest point left is my GitHub account. Things to keep switched on in GitHub:
 
@@ -153,7 +131,7 @@ Nothing online is unhackable, so the weakest point left is my GitHub account. Th
 - **Copyright:** all photos and texts are mine. The site footer states, in the visitor's language, that copying or using
   them without my written permission is prohibited, and `LICENSE` reserves all rights for this repository.
 - **People in my photos:** where someone is clearly recognisable, I make sure I have their consent. If someone asks me to
-  take a photo down, I delete it from the photo repo and redeploy.
+  take a photo down, I remove it and redeploy.
 - **Fonts** (Playfair Display, Inter) are under the SIL Open Font License and bundled with the site, so no visitor data is
   sent to Google Fonts (GDPR).
 - **No cookies or analytics**, so no cookie banner is needed. If I ever add analytics, I need to add a consent banner.
@@ -175,7 +153,7 @@ bg/index.html                  Bulgarian page shell + Google/SEO information
 vite.config.js                 Build settings, security policy, photo content hashes
 scripts/check-build.mjs        Checks the built site before it goes live
 public/                        Files served as-is (service worker, favicon, robots.txt, sitemap.xml)
-public/photos/                 My private photo repo (not part of this one)
+public/photos/                 Photo files (not stored in this repo)
 src/
   main.jsx                     Entry point, fonts, service worker registration
   App.jsx                      Page layout and sections

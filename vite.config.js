@@ -8,7 +8,7 @@ import { fileURLToPath } from 'node:url'
 // A short content hash per photo, e.g. { '/photos/01.jpg': '3f9a1c2b' }.
 // The site requests 01.jpg?v=3f9a1c2b, so browsers can cache photos forever
 // and still get the new file the moment a photo is replaced.
-// (public/photos is my private photo repo; it may be missing, e.g. in pull request builds.)
+// (public/photos is not stored in this repository; it may be missing, e.g. in pull request builds.)
 const photosDir = new URL('./public/photos/', import.meta.url)
 const photoVersions = Object.fromEntries(
   (existsSync(photosDir) ? readdirSync(photosDir) : [])
@@ -45,7 +45,7 @@ const securityTags = {
     ),
 }
 
-// public/photos is a clone of my private photo repo: never publish its .git folder (its history).
+// Never publish a .git folder that may sit inside public/photos.
 const dropPhotoRepoHistory = {
   name: 'drop-photo-repo-history',
   apply: 'build',

@@ -26,5 +26,5 @@ desktop.ini
 # Full-size originals (web copies live in public/photos)
 originals/
 
-# My photos live in their own private repo (cloned into public/photos), never in this public one
+# Photos are not stored in this repository
 public/photos/
