@@ -5,6 +5,12 @@ import { createHash } from 'node:crypto'
 import { existsSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
 
+// The site goes to Cloudflare from GitHub Actions (see wrangler.jsonc). A build that Cloudflare runs
+// on its own wouldn't have the photos, so it stops here and nothing gets published.
+if (process.env.WORKERS_CI) {
+  throw new Error('This site is deployed from GitHub Actions, not built by Cloudflare. Disconnect this repository in Cloudflare.')
+}
+
 // A short content hash per photo, e.g. { '/photos/01.jpg': '3f9a1c2b' }.
 // The site requests 01.jpg?v=3f9a1c2b, so browsers can cache photos forever
 // and still get the new file the moment a photo is replaced.

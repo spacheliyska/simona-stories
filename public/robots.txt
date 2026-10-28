@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://spacheliyska.github.io/simona-stories/sitemap.xml
+Sitemap: https://simonapacheliyska.com/sitemap.xml

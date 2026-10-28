@@ -1,0 +1,19 @@
+// Cloudflare hosting for simonapacheliyska.com.
+// The site is built, checked and uploaded by GitHub Actions (.github/workflows/deploy.yml),
+// not by Cloudflare. It's only static files: no server code runs.
+{
+  "$schema": "./node_modules/wrangler/config-schema.json",
+  "name": "simona-stories",
+  "compatibility_date": "2026-10-28",
+  "assets": {
+    "directory": "./dist"
+  },
+  // Cloudflare creates the DNS records and the HTTPS certificate for these itself.
+  "routes": [
+    { "pattern": "simonapacheliyska.com", "custom_domain": true },
+    { "pattern": "www.simonapacheliyska.com", "custom_domain": true }
+  ],
+  // Only the real domain: no extra *.workers.dev copies of the site.
+  "workers_dev": false,
+  "preview_urls": false
+}

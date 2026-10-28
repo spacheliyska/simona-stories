@@ -1,16 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
   <url>
-    <loc>https://spacheliyska.github.io/simona-stories/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://spacheliyska.github.io/simona-stories/" />
-    <xhtml:link rel="alternate" hreflang="bg" href="https://spacheliyska.github.io/simona-stories/bg/" />
+    <loc>https://simonapacheliyska.com/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://simonapacheliyska.com/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://simonapacheliyska.com/bg/" />
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://spacheliyska.github.io/simona-stories/bg/</loc>
-    <xhtml:link rel="alternate" hreflang="en" href="https://spacheliyska.github.io/simona-stories/" />
-    <xhtml:link rel="alternate" hreflang="bg" href="https://spacheliyska.github.io/simona-stories/bg/" />
+    <loc>https://simonapacheliyska.com/bg/</loc>
+    <xhtml:link rel="alternate" hreflang="en" href="https://simonapacheliyska.com/" />
+    <xhtml:link rel="alternate" hreflang="bg" href="https://simonapacheliyska.com/bg/" />
     <changefreq>monthly</changefreq>
     <priority>1.0</priority>
   </url>

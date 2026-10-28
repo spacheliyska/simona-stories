@@ -5,6 +5,9 @@ node_modules/
 dist/
 dist-ssr/
 
+# Cloudflare tool cache (from `npx wrangler dev`)
+.wrangler/
+
 # Local environment / secrets
 .env
 .env.*

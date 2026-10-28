@@ -4,9 +4,10 @@ This is my portfolio website. I'm **Simona Pacheliyska**, a street and portrait 
 I keep the design clean and quiet so the photos do the talking: a warm dark background, one serif and one sans-serif font,
 thin lines and plenty of space. The site is in English and Bulgarian.
 
-**Live site:** https://spacheliyska.github.io/simona-stories/ (in Bulgarian: https://spacheliyska.github.io/simona-stories/bg/)
+**Live site:** https://simonapacheliyska.com/ (in Bulgarian: https://simonapacheliyska.com/bg/)
 
-I built it with React 19 and Vite 7, and it deploys itself to GitHub Pages with GitHub Actions every time I push.
+I built it with React 19 and Vite 7. GitHub Actions publishes it to Cloudflare every time I push, and also keeps a copy
+at the old address, https://spacheliyska.github.io/simona-stories/.
 
 ---
 
@@ -80,7 +81,7 @@ How it keeps the site up:
 
 - **Nothing broken goes live.** Before publishing, `scripts/check-build.mjs` checks both pages, the security policy and that
   every photo is there. If anything fails, nothing is published and the live site keeps its last good version.
-- **The switch is instant.** GitHub Pages swaps the whole site in one go, so nobody ever sees half a deploy.
+- **The switch is instant.** Cloudflare and GitHub Pages both swap the whole site in one go, so nobody ever sees half a deploy.
 - **One deploy at a time**, and a deploy is never cancelled halfway.
 - **The live site is checked after every deploy** (both languages and a photo). If that fails, GitHub emails me.
 - **Going back:** I revert the change in git and push; the previous version is rebuilt and checked like any other.
@@ -92,12 +93,15 @@ setting avoids the blank page completely.
 
 Progress and errors are in the repository's **Actions** tab.
 
-### If I move to my own domain
+### The domain and Cloudflare
 
-1. Buy a domain (e.g. `simonapacheliyska.com`) and add it under **Settings → Pages → Custom domain**.
-2. In `.github/workflows/deploy.yml`, change `BASE_PATH` to `/`.
-3. Replace `https://spacheliyska.github.io/simona-stories/` with the domain in `index.html`, `bg/index.html`,
-   `public/robots.txt` and `public/sitemap.xml`.
+`simonapacheliyska.com` is registered at Cloudflare, which also hosts the site. `wrangler.jsonc` connects the domain
+(with and without `www`), and Cloudflare creates the DNS records and the HTTPS certificate for it, so I don't add DNS
+records by hand. The upload uses two repository secrets, `CLOUDFLARE_API_TOKEN` and `CLOUDFLARE_ACCOUNT_ID`.
+Without them, only the GitHub Pages copy is updated.
+
+Cloudflare doesn't build the site itself: it can't, because the photos aren't in this repo. So the project must not be
+connected to this repo under *Workers & Pages* in Cloudflare.
 
 ## Security
 
@@ -110,7 +114,8 @@ On top of that:
 - **No referrer** is sent to other sites, and external links open without any access back to this page.
 - **No framing:** GitHub Pages can't send the header that stops other sites from showing mine inside a hidden frame,
   so the site simply doesn't start inside one.
-- **HTTPS only:** GitHub Pages enforces it, and browsers are told to always use HTTPS.
+- **HTTPS only:** Cloudflare (*SSL/TLS → Edge Certificates → Always Use HTTPS*) and GitHub Pages both enforce it, and
+  browsers are told to always use HTTPS.
 - **The deploy pipeline:** every GitHub Action is pinned to an exact version, each job gets only the permissions it needs,
   and Dependabot proposes updates once a month (`.github/dependabot.yml`). `npm audit` reports no known vulnerabilities.
 
@@ -146,7 +151,8 @@ Nothing online is unhackable, so the weakest point left is my GitHub account. Th
 ## Project structure
 
 ```
-.github/workflows/deploy.yml   CI/CD: build, check, publish to GitHub Pages, check the live site
+.github/workflows/deploy.yml   CI/CD: build, check, publish to Cloudflare and GitHub Pages, check the live sites
+wrangler.jsonc                 Cloudflare hosting settings and the domain
 .github/dependabot.yml         Monthly updates for the build tools and GitHub Actions
 index.html                     English page shell + Google/SEO information
 bg/index.html                  Bulgarian page shell + Google/SEO information

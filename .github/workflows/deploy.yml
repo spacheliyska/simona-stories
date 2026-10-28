@@ -1,7 +1,7 @@
 # CI/CD for the site.
 # - Pull requests: build the site to check nothing is broken.
-# - Pushes to main (or a manual run): build, check, publish to GitHub Pages,
-#   then check the live site. A build that fails a check is never published,
+# - Pushes to main (or a manual run): build, check, publish to Cloudflare (simonapacheliyska.com)
+#   and GitHub Pages, then check the live sites. A build that fails a check is never published,
 #   so the live site keeps its last good version.
 # Actions are pinned to exact versions (commit hashes), so a hijacked release can't
 # run here; Dependabot (.github/dependabot.yml) proposes updates.
@@ -30,6 +30,9 @@ jobs:
       actions: read
     env:
       HAS_PHOTOS_SOURCE: ${{ secrets.PHOTOS_REPO != '' && secrets.PHOTOS_DEPLOY_KEY != '' }}
+      HAS_CLOUDFLARE: ${{ secrets.CLOUDFLARE_API_TOKEN != '' && secrets.CLOUDFLARE_ACCOUNT_ID != '' }}
+    outputs:
+      cloudflare_url: ${{ steps.cloudflare.outputs.url }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -69,7 +72,7 @@ jobs:
       - name: Build
         run: npm run build
         env:
-          # Leave empty once you use a custom domain (site served from '/').
+          # The GitHub Pages copy lives in a sub-folder: spacheliyska.github.io/simona-stories/
           BASE_PATH: /${{ github.event.repository.name }}/
 
       - name: Check the build
@@ -83,6 +86,25 @@ jobs:
         with:
           path: dist
           retention-days: 1
+
+      # The same site for simonapacheliyska.com, served from '/' (wrangler.jsonc says where it goes).
+      # Cloudflare swaps the whole site in one go, so nobody ever sees half a deploy.
+      - name: Build for Cloudflare
+        if: github.event_name != 'pull_request' && env.HAS_CLOUDFLARE == 'true'
+        run: npm run build && node scripts/check-build.mjs
+        env:
+          REQUIRE_PHOTOS: true
+
+      - name: Publish to Cloudflare
+        id: cloudflare
+        if: github.event_name != 'pull_request' && env.HAS_CLOUDFLARE == 'true'
+        run: |
+          npx wrangler deploy
+          echo "url=https://simonapacheliyska.com/" >> "$GITHUB_OUTPUT"
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          WRANGLER_SEND_METRICS: false
 
   deploy:
     if: github.event_name != 'pull_request'
@@ -120,23 +142,27 @@ jobs:
         uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
 
   verify:
-    needs: deploy
+    needs: [build, deploy]
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
-      - name: Check the live site
+      - name: Check the live sites
         env:
-          URL: ${{ needs.deploy.outputs.page_url }}
+          URLS: ${{ needs.build.outputs.cloudflare_url }} ${{ needs.deploy.outputs.page_url }}
         run: |
+          # Both languages with their script, and a photo.
+          check() {
+            for page in "" "bg/"; do
+              js=$(curl -fsSL "$1${page}?check=${GITHUB_RUN_ID}-$i" | grep -oE 'assets/[A-Za-z0-9_-]+\.js' | head -1)
+              [ -n "$js" ] && curl -fsS -o /dev/null "$1${js}" || return 1
+            done
+            curl -fsS -o /dev/null "$1photos/me.jpg?check=$i"
+          }
           for i in $(seq 1 18); do
             ok=true
-            for page in "" "bg/"; do
-              js=$(curl -fsSL "${URL}${page}?check=${GITHUB_RUN_ID}-$i" | grep -oE 'assets/[A-Za-z0-9_-]+\.js' | head -1)
-              [ -n "$js" ] && curl -fsS -o /dev/null "${URL}${js}" || ok=false
-            done
-            curl -fsS -o /dev/null "${URL}photos/me.jpg?check=$i" || ok=false
+            for url in $URLS; do check "$url" || ok=false; done
             if $ok; then
-              echo "The live site is up: ${URL} and ${URL}bg/"
+              echo "The live site is up: $URLS (and /bg/ on each)"
               exit 0
             fi
             sleep 10
