@@ -28,9 +28,9 @@
   "devDependencies": {
     "@vitejs/plugin-legacy": "^7.2.1",
     "@vitejs/plugin-react": "^5.0.0",
-    "autoprefixer": "^10.6.1",
+    "autoprefixer": "^10.6.2",
     "terser": "^5.51.2",
     "vite": "^7.1.0",
-    "wrangler": "^4.154.0"
+    "wrangler": "^4.155.0"
   }
 }
